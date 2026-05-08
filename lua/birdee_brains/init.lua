@@ -37,6 +37,11 @@ function M.launch()
     vim.api.nvim_set_option_value('buftype', 'nofile', { buf = buf })
 
     vim.api.nvim_buf_call(buf, function()
+        -- Disable autocomplete
+        vim.cmd("setlocal completeopt=")
+        vim.cmd("setlocal completefunc=")
+        vim.cmd("setlocal omnifunc=")
+
         if SETTINGS.game_mode == "speedrun" and SETTINGS.input_keymap ~= "" then
             vim.cmd("setlocal keymap=" .. SETTINGS.input_keymap)
             vim.cmd("setlocal iminsert=1")
