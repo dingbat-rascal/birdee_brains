@@ -28,9 +28,6 @@ function M.setup_keymaps(buf, win, engine, dict_a, dict_b, settings, on_next_rou
     -- Panic button - clear input and refresh
     vim.keymap.set({ 'n', 'i' }, 'dd', function()
         on_next_round()
-        if settings.game_mode == "speedrun" then
-            vim.cmd("startinsert!")
-        end
     end, { buffer = buf, desc = "Clear input and refresh" })
 
     -- Escape to quit game
@@ -41,67 +38,92 @@ function M.setup_keymaps(buf, win, engine, dict_a, dict_b, settings, on_next_rou
     vim.keymap.set('n', 'q', '<cmd>q!<CR>', { buffer = buf })
 end
 
-function M.setup_speedrun_input(buf, engine, dict_a, dict_b, settings, ns_id, speedrun_prompt_line, on_next_round)
+function M.setup_speedrun_input(buf, engine, dict_a, dict_b, settings, ns_id, on_next_round)
     vim.keymap.set('i', '<CR>', function()
         local line = vim.api.nvim_get_current_line()
         local input = vim.trim((line:match(">%s*(.*)") or ""):lower())
         local is_correct = (input == dict_b[engine.target_idx]:lower())
 
-        -- Highlight the input line
-        vim.api.nvim_buf_set_extmark(buf, ns_id, speedrun_prompt_line, 0, {
-            end_row = speedrun_prompt_line + 1,
-            hl_group = is_correct and "GameCorrect" or "GameWrong",
-            hl_eol = true,
-        })
-
-        if is_correct then
-            engine:record_correct(engine.target_idx)
-            vim.defer_fn(function()
-                if buf and vim.api.nvim_buf_is_valid(buf) then
-                    vim.api.nvim_buf_clear_namespace(buf, ns_id, 0, -1)
-                    on_next_round()
-                end
-            end, 200)
-        else
-            engine:record_wrong(engine.target_idx)
-            vim.defer_fn(function()
-                if buf and vim.api.nvim_buf_is_valid(buf) then
-                    vim.api.nvim_buf_clear_namespace(buf, ns_id, 0, -1)
-                    on_next_round()
-                end
-            end, 200)
+        -- Find the input line in the buffer
+        local input_line = nil
+        for i = 0, vim.api.nvim_buf_line_count(buf) - 1 do
+            if vim.api.nvim_buf_get_lines(buf, i, i + 1, false)[1]:match("^ > ") then
+                input_line = i
+                break
+            end
         end
-    end, { buffer = buf })
-end
 
-function M.setup_multiple_choice_input(buf, engine, dict_b, settings, ns_id, choice_start_line, choices, on_next_round)
-    local keys = { "j", "k", "l", ";" }
-    for i, key in ipairs(keys) do
-        vim.keymap.set({ 'n', 'i' }, key, function()
-            local is_correct = (choices[i] == dict_b[engine.target_idx])
-            local line_num = choice_start_line + i - 1
-
-            vim.api.nvim_buf_set_extmark(buf, ns_id, line_num, 0, {
-                end_row = line_num + 1,
+        if input_line then
+            vim.api.nvim_buf_set_extmark(buf, ns_id, input_line, 0, {
+                end_row = input_line + 1,
                 hl_group = is_correct and "GameCorrect" or "GameWrong",
                 hl_eol = true,
             })
+        end
+
+        if is_correct then
+            engine:record_correct(engine.target_idx)
+        else
+            engine:record_wrong(engine.target_idx)
+        end
+
+        vim.defer_fn(function()
+            if buf and vim.api.nvim_buf_is_valid(buf) then
+                vim.api.nvim_buf_clear_namespace(buf, ns_id, 0, -1)
+                on_next_round()
+            end
+        end, 200)
+    end, { buffer = buf })
+end
+
+function M.setup_multiple_choice_input(buf, engine, dict_b, settings, ns_id, on_next_round)
+    local keys = { "j", "k", "l", ";" }
+    for i, key in ipairs(keys) do
+        vim.keymap.set({ 'n', 'i' }, key, function()
+            local is_correct = (engine.current_choices[i] == dict_b[engine.target_idx])
+
+            -- Find the choice line in the buffer
+            local choice_line = nil
+            for line_num = 0, vim.api.nvim_buf_line_count(buf) - 1 do
+                local line_text = vim.api.nvim_buf_get_lines(buf, line_num, line_num + 1, false)[1]
+                if line_text:match("%[" .. key .. "%]") then
+                    choice_line = line_num
+                    break
+                end
+            end
+
+            if choice_line then
+                vim.api.nvim_buf_set_extmark(buf, ns_id, choice_line, 0, {
+                    end_row = choice_line + 1,
+                    hl_group = is_correct and "GameCorrect" or "GameWrong",
+                    hl_eol = true,
+                })
+
+                if not is_correct and settings.reveal_correct == true then
+                    for j, c in ipairs(engine.current_choices) do
+                        if c == dict_b[engine.target_idx] then
+                            for line_num = 0, vim.api.nvim_buf_line_count(buf) - 1 do
+                                local line_text = vim.api.nvim_buf_get_lines(buf, line_num, line_num + 1, false)[1]
+                                local correct_key = keys[j]
+                                if line_text:match("%[" .. correct_key .. "%]") then
+                                    vim.api.nvim_buf_set_extmark(buf, ns_id, line_num, 0, {
+                                        end_row = line_num + 1,
+                                        hl_group = "GameCorrect",
+                                        hl_eol = true,
+                                    })
+                                    break
+                                end
+                            end
+                            break
+                        end
+                    end
+                end
+            end
 
             if is_correct then
                 engine:record_correct(engine.target_idx)
             else
                 engine:record_wrong(engine.target_idx)
-                if settings.reveal_correct == true then
-                    for j, c in ipairs(choices) do
-                        if c == dict_b[engine.target_idx] then
-                            vim.api.nvim_buf_set_extmark(buf, ns_id, choice_start_line + j - 1, 0, {
-                                end_row = choice_start_line + j,
-                                hl_group = "GameCorrect",
-                                hl_eol = true,
-                            })
-                        end
-                    end
-                end
             end
 
             vim.defer_fn(function()
