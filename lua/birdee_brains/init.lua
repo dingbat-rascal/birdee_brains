@@ -49,21 +49,18 @@ function M.launch()
     -- Setup UI
     ui_module.setup_highlights()
 
-    -- State variables
-    local speedrun_prompt_line = 0
-    local choice_start_line = 0
-    local current_choices = {}
-
     -- Next round function
     local function next_round()
         engine:select_target(dict_a)
 
+        local choices
         if SETTINGS.game_mode == "multiple_choice" then
-            current_choices = engine:generate_choices(dict_b, dict_b[engine.target_idx])
-            choice_start_line = ui_module.render_multiple_choice(buf, engine, dict_a, current_choices)
-        else
-            speedrun_prompt_line = ui_module.render_speedrun(buf, win, engine, dict_a, speedrun_prompt_line)
+            choices = engine:generate_choices(dict_b, dict_b[engine.target_idx])
+            engine.current_choices = choices
         end
+
+        local layout = ui_module.build_layout(engine, dict_a, choices, SETTINGS.game_mode)
+        ui_module.render(buf, win, layout, SETTINGS.game_mode)
     end
 
     -- Setup keymaps
@@ -71,9 +68,9 @@ function M.launch()
 
     -- Setup game-specific input handlers
     if SETTINGS.game_mode == "speedrun" then
-        keymaps_module.setup_speedrun_input(buf, engine, dict_a, dict_b, SETTINGS, ns_id, speedrun_prompt_line, next_round)
+        keymaps_module.setup_speedrun_input(buf, engine, dict_a, dict_b, SETTINGS, ns_id, next_round)
     else
-        keymaps_module.setup_multiple_choice_input(buf, engine, dict_b, SETTINGS, ns_id, choice_start_line, current_choices, next_round)
+        keymaps_module.setup_multiple_choice_input(buf, engine, dict_b, SETTINGS, ns_id, next_round)
     end
 
     -- Start the game
