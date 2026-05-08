@@ -18,6 +18,14 @@ M.DEFAULTS = {
     -- stored default list in available
     -- or you can use custom ones from ./nvim/keymap/example.vim dir
     -- you dont need full path just example.vim
+
+    keybinds = {
+        submit = "<CR>",           -- speedrun: submit answer
+        refresh = "dd",            -- clear and refresh round
+        quit = "q",                -- quit game
+        escape = "<esc>",          -- escape to quit
+        choice_keys = { "j", "k", "l", ";" },  -- multiple choice selection keys
+    }
 }
 
 return M
