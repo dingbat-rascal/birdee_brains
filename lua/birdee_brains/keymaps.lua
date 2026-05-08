@@ -1,6 +1,8 @@
 local M = {}
 
 function M.setup_keymaps(buf, win, engine, dict_a, dict_b, settings, on_next_round)
+    local kb = settings.keybinds
+
     -- Restore prompt if edited (speedrun mode)
     vim.api.nvim_create_autocmd({ "TextChangedI", "TextChangedP" }, {
         buffer = buf,
@@ -26,20 +28,22 @@ function M.setup_keymaps(buf, win, engine, dict_a, dict_b, settings, on_next_rou
     end, { expr = true, buffer = buf })
 
     -- Panic button - clear input and refresh
-    vim.keymap.set({ 'n', 'i' }, 'dd', function()
+    vim.keymap.set({ 'n', 'i' }, kb.refresh, function()
         on_next_round()
     end, { buffer = buf, desc = "Clear input and refresh" })
 
     -- Escape to quit game
-    vim.keymap.set('n', '<esc>', '<cmd>q!<cr>', { buffer = buf, silent = true })
-    vim.keymap.set('i', '<esc>', '<cmd>q!<cr>', { buffer = buf, silent = true })
+    vim.keymap.set('n', kb.escape, '<cmd>q!<cr>', { buffer = buf, silent = true })
+    vim.keymap.set('i', kb.escape, '<cmd>q!<cr>', { buffer = buf, silent = true })
 
-    -- Quit with 'q'
-    vim.keymap.set('n', 'q', '<cmd>q!<CR>', { buffer = buf })
+    -- Quit with custom key
+    vim.keymap.set('n', kb.quit, '<cmd>q!<CR>', { buffer = buf })
 end
 
 function M.setup_speedrun_input(buf, engine, dict_a, dict_b, settings, ns_id, on_next_round)
-    vim.keymap.set('i', '<CR>', function()
+    local kb = settings.keybinds
+
+    vim.keymap.set('i', kb.submit, function()
         local line = vim.api.nvim_get_current_line()
         local input = vim.trim((line:match(">%s*(.*)") or ""):lower())
         local is_correct = (input == dict_b[engine.target_idx]:lower())
@@ -77,7 +81,9 @@ function M.setup_speedrun_input(buf, engine, dict_a, dict_b, settings, ns_id, on
 end
 
 function M.setup_multiple_choice_input(buf, engine, dict_b, settings, ns_id, on_next_round)
-    local keys = { "j", "k", "l", ";" }
+    local kb = settings.keybinds
+    local keys = kb.choice_keys
+
     for i, key in ipairs(keys) do
         vim.keymap.set({ 'n', 'i' }, key, function()
             local is_correct = (engine.current_choices[i] == dict_b[engine.target_idx])
