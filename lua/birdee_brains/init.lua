@@ -268,23 +268,20 @@ function M.start_game(SETTINGS)
             choices = engine:generate_choices(answers, answers[engine.target_idx])
             
             -- Guard clause: ensure choices were generated
-            if not choices or #choices == 0 then
+            if not choices or type(choices) ~= "table" then
                 vim.notify("Failed to generate choices", vim.log.levels.ERROR)
                 return
             end
             
-            -- Ensure we always have exactly 4 choices
-            while #choices < 4 do
-                table.insert(choices, "")
-            end
-            
-            -- Truncate if somehow we have more than 4
-            while #choices > 4 do
-                table.remove(choices)
+            -- Force exactly 4 choices - create new table to avoid reference issues
+            local safe_choices = {}
+            for i = 1, 4 do
+                safe_choices[i] = choices[i] or ""
             end
 
             -- Store choices in engine state for keymap access
-            engine.current_choices = choices
+            engine.current_choices = safe_choices
+            choices = safe_choices
         end
 
         local layout = ui_module.build_layout(engine, questions, choices, SETTINGS.game_mode)
