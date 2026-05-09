@@ -82,9 +82,13 @@ function M.load_csv(filepath)
     if not filepath or filepath == "" then
         return {}, {}, "No filepath provided"
     end
-    local file = io.open(filepath, "r")
+    
+    -- Normalize path for the current platform
+    local normalized_path = vim.fs.normalize(filepath)
+    
+    local file = io.open(normalized_path, "r")
     if not file then
-        return {}, {}, "Could not open CSV file: " .. filepath
+        return {}, {}, "Could not open CSV file: " .. normalized_path .. " (original: " .. filepath .. ")"
     end
 
     local lines = {}
@@ -101,11 +105,11 @@ function M.load_csv(filepath)
     local headers = parse_csv_line(lines[1])
 
     if #headers == 0 then
-        return {}, {}, "CSV file has no headers: " .. filepath
+        return {}, {}, "CSV file has no headers: " .. normalized_path
     end
 
-    -- Extract filename without extension for ID generation
-    local filename = filepath:match("([^/]+)$") or "unknown"
+    -- Extract filename without extension for ID generation (handle both / and \)
+    local filename = normalized_path:match("([^/\\]+)$") or "unknown"
     filename = filename:match("^([^%.]+)") or filename
 
     -- Parse data rows
@@ -205,14 +209,17 @@ function M.scan_csv_files(directory)
 
     debug_print("Final path being used:", found_dir)
 
+    -- Normalize the directory path for the current platform
+    local normalized_dir = vim.fs.normalize(found_dir)
+    
     -- Use Neovim's globpath to find CSV files (cross-platform)
-    local csv_pattern = found_dir .. "/*.csv"
+    local csv_pattern = normalized_dir .. "/*.csv"
     local file_paths = vim.fn.glob(csv_pattern, false, true)
 
     local files = {}
     for _, filepath in ipairs(file_paths) do
-        -- Extract just the filename from the full path
-        local filename = filepath:match("([^/]+)$")
+        -- Extract just the filename from the full path (handle both / and \)
+        local filename = filepath:match("([^/\\]+)$")
         if filename then
             table.insert(files, filename)
         end
