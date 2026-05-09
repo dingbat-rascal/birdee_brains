@@ -3,15 +3,17 @@ local csv_loader = require("birdee_brains.csv_loader")
 
 -- Load CSV-based dictionary and extract question/answer columns
 function M.load_dictionary(settings)
-    local data, headers, err = csv_loader.load_csv(settings.csv_file)
+    local csv_file = settings.csv_file
+    
+    local data, headers, err = csv_loader.load_csv(csv_file)
 
     -- Handle loading errors
     if err then
-        error(err)
+        error("Failed to load CSV file '" .. tostring(csv_file) .. "': " .. err)
     end
 
     if #data == 0 then
-        error("No data rows found in CSV file: " .. settings.csv_file)
+        error("No data rows found in CSV file: " .. tostring(csv_file))
     end
 
     -- Default to first and second columns if not specified
@@ -22,7 +24,7 @@ function M.load_dictionary(settings)
         if #headers > 0 then
             question_column = headers[1]
         else
-            error("No columns found in CSV file: " .. settings.csv_file)
+            error("No columns found in CSV file: " .. tostring(csv_file))
         end
     end
     
@@ -30,7 +32,7 @@ function M.load_dictionary(settings)
         if #headers > 1 then
             answer_column = headers[2]
         else
-            error("CSV file must have at least 2 columns: " .. settings.csv_file)
+            error("CSV file must have at least 2 columns: " .. tostring(csv_file))
         end
     end
 
