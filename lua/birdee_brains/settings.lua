@@ -2,7 +2,7 @@ local M = {}
 
 M.DEFAULTS = {
     -- CSV-based configuration
-    csv_file        = nil,                  -- Will be set dynamically from lesson selection
+    csv_file        = "lesson1",                  -- Will be set dynamically from lesson selection
     data_directory  = "lua/birdee_brains/data/",  -- Directory containing CSV lesson files
     question_column = "en",                 -- Column to use for questions
     answer_column   = "es",                 -- Column to use for answers

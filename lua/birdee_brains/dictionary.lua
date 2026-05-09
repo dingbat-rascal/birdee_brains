@@ -4,12 +4,12 @@ local csv_loader = require("birdee_brains.csv_loader")
 -- Load CSV-based dictionary and extract question/answer columns
 function M.load_dictionary(settings)
     local data, headers, err = csv_loader.load_csv(settings.csv_file)
-    
+
     -- Handle loading errors
     if err then
         error(err)
     end
-    
+
     if #data == 0 then
         error("No data rows found in CSV file: " .. settings.csv_file)
     end
@@ -24,11 +24,11 @@ function M.load_dictionary(settings)
 
     if not has_question then
         error("Question column '" ..
-        settings.question_column .. "' not found in CSV. Available columns: " .. table.concat(headers, ", "))
+            settings.question_column .. "' not found in CSV. Available columns: " .. table.concat(headers, ", "))
     end
     if not has_answer then
         error("Answer column '" ..
-        settings.answer_column .. "' not found in CSV. Available columns: " .. table.concat(headers, ", "))
+            settings.answer_column .. "' not found in CSV. Available columns: " .. table.concat(headers, ", "))
     end
 
     -- Extract the columns as arrays for compatibility with existing game engine
