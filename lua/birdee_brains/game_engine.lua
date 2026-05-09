@@ -39,7 +39,8 @@ function M.create_engine(settings)
         if self.settings.reinforce == false then
             self.target_idx = math.random(1, #questions)
         else
-            if #self.mistake_bucket > 0 and math.random() > 0.3 then
+            local reinforce_threshold = 1.0 - (self.settings.reinforce_chance or 0.7)
+            if #self.mistake_bucket > 0 and math.random() > reinforce_threshold then
                 local bucket_pos = math.random(1, #self.mistake_bucket)
                 self.target_idx = self.mistake_bucket[bucket_pos]
             else

@@ -272,6 +272,16 @@ function M.start_game(SETTINGS)
                 vim.notify("Failed to generate choices", vim.log.levels.ERROR)
                 return
             end
+            
+            -- Ensure we always have exactly 4 choices
+            while #choices < 4 do
+                table.insert(choices, "")
+            end
+            
+            -- Truncate if somehow we have more than 4
+            while #choices > 4 do
+                table.remove(choices)
+            end
 
             -- Store choices in engine state for keymap access
             engine.current_choices = choices
