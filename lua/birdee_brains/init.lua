@@ -14,12 +14,12 @@ end
 function M.launch()
     local SETTINGS = M.SETTINGS
 
-    -- Load dictionaries
-    local dict_a = dictionary_module.load_dictionary(SETTINGS.bird_a, SETTINGS.course_number)
-    local dict_b = dictionary_module.load_dictionary(SETTINGS.bird_b, SETTINGS.course_number)
+    -- Load dictionaries from CSV
+    local questions, answers, csv_metadata = dictionary_module.load_dictionary(SETTINGS)
 
     -- Create game engine
     local engine = game_engine_module.create_engine(SETTINGS)
+    engine.csv_metadata = csv_metadata  -- Store metadata for potential future use
 
     -- Create buffer and window
     local buf = vim.api.nvim_create_buf(false, true)
@@ -56,26 +56,26 @@ function M.launch()
 
     -- Next round function
     local function next_round()
-        engine:select_target(dict_a)
+        engine:select_target(questions)
 
         local choices
         if SETTINGS.game_mode == "multiple_choice" then
-            choices = engine:generate_choices(dict_b, dict_b[engine.target_idx])
+            choices = engine:generate_choices(answers, answers[engine.target_idx])
             engine.current_choices = choices
         end
 
-        local layout = ui_module.build_layout(engine, dict_a, choices, SETTINGS.game_mode)
+        local layout = ui_module.build_layout(engine, questions, choices, SETTINGS.game_mode)
         ui_module.render(buf, win, layout, SETTINGS.game_mode)
     end
 
     -- Setup keymaps
-    keymaps_module.setup_keymaps(buf, win, engine, dict_a, dict_b, SETTINGS, next_round)
+    keymaps_module.setup_keymaps(buf, win, engine, questions, answers, SETTINGS, next_round)
 
     -- Setup game-specific input handlers
     if SETTINGS.game_mode == "speedrun" then
-        keymaps_module.setup_speedrun_input(buf, engine, dict_a, dict_b, SETTINGS, ns_id, next_round)
+        keymaps_module.setup_speedrun_input(buf, engine, questions, answers, SETTINGS, ns_id, next_round)
     else
-        keymaps_module.setup_multiple_choice_input(buf, engine, dict_b, SETTINGS, ns_id, next_round)
+        keymaps_module.setup_multiple_choice_input(buf, engine, answers, SETTINGS, ns_id, next_round)
     end
 
     -- Start the game

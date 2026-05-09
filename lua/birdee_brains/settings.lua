@@ -1,12 +1,12 @@
 local M = {}
 
 M.DEFAULTS = {
-    -- You can also point both bird_dir to the same ex (english, and english) to get a typing trainer.
-    bird_a         = "spanish",
-    bird_b         = "english",
-    course_number  = 1,
+    -- CSV-based configuration
+    csv_file        = "data/lesson1.csv",  -- Path to CSV file relative to config directory
+    question_column = "en",                 -- Column to use for questions
+    answer_column   = "es",                 -- Column to use for answers
 
-    game_mode      = "multiple_choice",
+    game_mode       = "multiple_choice",
     -- options "speedrun" or multiple_choice
     reveal_correct = true,
     reinforce      = true, -- reinforce things you get wrong

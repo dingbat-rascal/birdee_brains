@@ -35,32 +35,32 @@ function M.create_engine(settings)
         end
     end
 
-    function engine:select_target(dict_a)
+    function engine:select_target(questions)
         if self.settings.reinforce == false then
-            self.target_idx = math.random(1, #dict_a)
+            self.target_idx = math.random(1, #questions)
         else
             if #self.mistake_bucket > 0 and math.random() > 0.3 then
                 local bucket_pos = math.random(1, #self.mistake_bucket)
                 self.target_idx = self.mistake_bucket[bucket_pos]
             else
-                self.target_idx = math.random(1, #dict_a)
+                self.target_idx = math.random(1, #questions)
             end
         end
     end
 
-    function engine:generate_choices(dict_b, correct_answer)
+    function engine:generate_choices(answers, correct_answer)
         local choices = { correct_answer }
         while #choices < 4 do
-            local r = math.random(1, #dict_b)
-            if dict_b[r] ~= correct_answer then
+            local r = math.random(1, #answers)
+            if answers[r] ~= correct_answer then
                 local exists = false
                 for _, v in ipairs(choices) do
-                    if v == dict_b[r] then
+                    if v == answers[r] then
                         exists = true
                     end
                 end
                 if not exists then
-                    table.insert(choices, dict_b[r])
+                    table.insert(choices, answers[r])
                 end
             end
         end
