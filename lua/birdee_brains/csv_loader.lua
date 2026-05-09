@@ -1,25 +1,28 @@
 local M = {}
 
--- Module configuration
+-- ============================================================================
+-- Local State & Configuration
+-- ============================================================================
+
 local config = {
     debug = false
 }
 
--- Setup function to sync configuration
-function M.setup(user_config)
-    if user_config then
-        config = vim.tbl_deep_extend("force", config, user_config)
-    end
-end
+-- ============================================================================
+-- Helper Functions
+-- ============================================================================
 
--- Debug print function - only prints if debug is enabled
-local function dprint(...)
+--- Debug print function - only prints if debug is enabled
+--- @param ... any Arguments to print
+local function debug_print(...)
     if config.debug then
-        print(...)
+        vim.notify(table.concat({...}, " "), vim.log.levels.INFO)
     end
 end
 
--- Parse a CSV line, handling quoted fields
+--- Parse a CSV line, handling quoted fields
+--- @param line string The CSV line to parse
+--- @return table fields Array of field values
 local function parse_csv_line(line)
     local fields = {}
     local field = ""
@@ -55,9 +58,30 @@ local function parse_csv_line(line)
     return fields
 end
 
--- Load CSV file and return data as array of row objects + headers
+--- Check if a directory exists using Neovim API
+--- @param path string Directory path to check
+--- @return boolean exists True if directory exists
+local function directory_exists(path)
+    if not path or path == "" then
+        return false
+    end
+    local stat = vim.loop.fs_stat(path)
+    return stat and stat.type == "directory"
+end
+
+-- ============================================================================
+-- Public API
+-- ============================================================================
+
+--- Load CSV file and return data as array of row objects + headers
+--- @param filepath string Path to the CSV file
+--- @return table data Array of row objects
+--- @return table headers Array of header names
+--- @return string|nil error Error message if any
 function M.load_csv(filepath)
-    -- Check if file exists
+    if not filepath or filepath == "" then
+        return {}, {}, "No filepath provided"
+    end
     local file = io.open(filepath, "r")
     if not file then
         return {}, {}, "Could not open CSV file: " .. filepath
@@ -81,7 +105,6 @@ function M.load_csv(filepath)
     end
 
     -- Extract filename without extension for ID generation
-    -- Handle filenames with multiple dots by taking everything before the first dot
     local filename = filepath:match("([^/]+)$") or "unknown"
     filename = filename:match("^([^%.]+)") or filename
 
@@ -123,8 +146,17 @@ function M.load_csv(filepath)
     return data, headers, nil
 end
 
--- Extract a single column from the data as an array
+--- Extract a single column from the data as an array
+--- @param data table Array of row objects
+--- @param column_name string Name of the column to extract
+--- @return table result Array of column values
 function M.extract_column(data, column_name)
+    if not data or #data == 0 then
+        return {}
+    end
+    if not column_name or column_name == "" then
+        return {}
+    end
     local result = {}
     for _, row in ipairs(data) do
         table.insert(result, row[column_name] or "")
@@ -132,19 +164,12 @@ function M.extract_column(data, column_name)
     return result
 end
 
--- Check if a directory exists using Neovim API
-local function directory_exists(path)
-    if not path or path == "" then
-        return false
-    end
-    local stat = vim.loop.fs_stat(path)
-    return stat and stat.type == "directory"
-end
-
--- Scan a directory for CSV files and return a list of filenames
+--- Scan a directory for CSV files and return a list of filenames
+--- @param directory string|nil Optional directory path to scan
+--- @return table files Array of CSV filenames
+--- @return string|nil found_dir The directory that was used
 function M.scan_csv_files(directory)
-    local cwd = vim.fn.getcwd()
-    dprint("DEBUG: Current working directory: " .. cwd)
+    debug_print("Current working directory:", vim.fn.getcwd())
 
     -- Build search paths in priority order
     local search_paths = {}
@@ -173,12 +198,12 @@ function M.scan_csv_files(directory)
     end
 
     if not found_dir then
-        dprint("DEBUG: Searched paths: " .. table.concat(search_paths, ", "))
-        dprint("DEBUG: No valid data directory found")
+        debug_print("Searched paths:", table.concat(search_paths, ", "))
+        debug_print("No valid data directory found")
         return {}, nil
     end
 
-    dprint("DEBUG: Final path being used: " .. found_dir)
+    debug_print("Final path being used:", found_dir)
 
     -- Use Neovim's globpath to find CSV files (cross-platform)
     local csv_pattern = found_dir .. "/*.csv"
@@ -194,17 +219,34 @@ function M.scan_csv_files(directory)
     end
 
     if #files > 0 then
-        dprint("DEBUG: Found CSV files: " .. table.concat(files, ", "))
+        debug_print("Found CSV files:", table.concat(files, ", "))
     else
-        dprint("DEBUG: No CSV files found in " .. found_dir)
+        debug_print("No CSV files found in", found_dir)
     end
 
     return files, found_dir
 end
 
--- Get lesson name from CSV filename (removes .csv extension, case-insensitive)
+--- Get lesson name from CSV filename (removes .csv extension)
+--- @param filename string The CSV filename
+--- @return string lesson_name The lesson name without extension
 function M.get_lesson_name(filename)
+    if not filename then
+        return ""
+    end
     return filename:gsub("%.csv$", ""):gsub("%.CSV$", "")
+end
+
+-- ============================================================================
+-- Setup
+-- ============================================================================
+
+--- Setup function to sync configuration
+--- @param user_config table|nil User configuration options
+function M.setup(user_config)
+    if user_config then
+        config = vim.tbl_deep_extend("force", config, user_config)
+    end
 end
 
 return M
