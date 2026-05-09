@@ -76,15 +76,16 @@ function M.create_engine(settings)
             table.remove(available, idx)
         end
         
-        -- Pad with empty strings to always have exactly 4 choices
-        while #choices < 4 do
-            table.insert(choices, "")
-        end
-        
-        -- Shuffle all 4 positions
-        for i = 4, 2, -1 do
+        -- Shuffle only the non-empty choices
+        local num_real_choices = #choices
+        for i = num_real_choices, 2, -1 do
             local j = math.random(i)
             choices[i], choices[j] = choices[j], choices[i]
+        end
+        
+        -- Pad with empty strings at the end to always have exactly 4 choices
+        while #choices < 4 do
+            table.insert(choices, "")
         end
         
         return choices
