@@ -1,5 +1,5 @@
 Broken Code,Error Explanation
-"print(""Hello World)",Missing closing quote - string literal not terminated
+"print(""""Hello World)",Missing closing quote - string literal not terminated
 "x = 5; y = x + z",NameError - variable 'z' is not defined before use
 "def calculate(): return x + y; x = 10",IndentationError - inconsistent indentation mixing spaces and tabs
 "my_list = [1, 2, 3]; print(my_list[3])",IndexError - list index out of range (valid indices are 0-2)
