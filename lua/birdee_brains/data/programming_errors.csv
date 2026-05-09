@@ -2,7 +2,7 @@ Question,Answer A,Answer B,Answer C,Answer D,Correct,Explanation
 "What will this code print?\nx = 5\ny = x\nx = 10\nprint(y)",5,10,15,Error,A,"y stores the value 5 when assigned. Changing x later doesn't affect y because integers are copied by value."
 "What is the final value of count? | count = 0 | count = count + 1 | count = count + 1",0,1,2,3,C,"count starts at 0 then increases by 1 twice (0+1=1 then 1+1=2)."
 "What does this print?\nname = ""Alice""\nage = 25\nprint(name)",Alice,25,Alice25,Error,A,"print(name) outputs the value stored in name which is the text Alice."
-"Which line has an error?\nx = 10\ny = 20\nz = x + y\nprint(z)",Line 1,Line 2,Line 3,No error,D,"All lines are valid: variables are declared and used correctly."
+"Which statement has an error?\nx = 10\ny = 20\nz = x + y\nprint(z)",x = 10,y = 20,z = x + y,No error,D,"All lines are valid: variables are declared and used correctly."
 "What will print?\nx = 5\nx = x * 2\nprint(x)",5,10,25,Error,B,"x starts as 5 then gets reassigned to 5*2 which equals 10."
 "What does this output?\nis_ready = True\nif is_ready:\n  print(""Go"")\nelse:\n  print(""Wait"")",Go,Wait,True,Nothing,A,"is_ready is True so the if-block executes printing Go."
 "What prints here?\nscore = 85\nif score >= 90:\n  print(""A"")\nelse:\n  print(""B"")",A,B,85,Nothing,B,"85 is not >= 90 so the else-block runs printing B."
