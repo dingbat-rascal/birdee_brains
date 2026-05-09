@@ -52,16 +52,17 @@ return {
         question_column = nil, -- Default: first column (e.g., "en")
         answer_column = nil,   -- Default: second column (e.g., "fr")
         -- Note: CSV files can have 2+ columns; only question/answer columns are used
-        -- TODO : pick your columns, pick game_mode
         
         -- Game mode: "multiple_choice" or "speedrun"
         game_mode = "multiple_choice",
         
         -- Multiple choice settings
         reveal_correct = true, -- Highlight correct answer when you get it wrong
+        reveal_delay = 2000,   -- Milliseconds to show correct answer (default: 2000ms / 2 seconds)
         
         -- Reinforcement learning: re-quiz on mistakes
-        reinforce = true, -- 70% chance to show questions you got wrong
+        reinforce = true,         -- Enable mistake reinforcement
+        reinforce_chance = 0.7,   -- Probability (0.0-1.0) to show questions from mistake bucket (default: 0.7 = 70%)
         
         -- Speedrun mode settings
         input_keymap = "", -- Keymap for speedrun input (e.g., "kana" for Japanese)

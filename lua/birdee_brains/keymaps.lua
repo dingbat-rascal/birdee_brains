@@ -134,12 +134,13 @@ function M.setup_speedrun_input(buf, engine, dict_a, dict_b, settings, ns_id, on
             engine:record_wrong(engine.target_idx)
         end
 
+        local delay = settings.reveal_delay or 2000
         vim.defer_fn(function()
             if buf and vim.api.nvim_buf_is_valid(buf) then
                 vim.api.nvim_buf_clear_namespace(buf, ns_id, 0, -1)
                 on_next_round()
             end
-        end, 200)
+        end, delay)
     end, { buffer = buf })
 end
 
@@ -228,12 +229,13 @@ function M.setup_multiple_choice_input(buf, engine, dict_b, settings, ns_id, on_
                 engine:record_wrong(engine.target_idx)
             end
 
+            local delay = settings.reveal_delay or 2000
             vim.defer_fn(function()
                 if buf and vim.api.nvim_buf_is_valid(buf) then
                     vim.api.nvim_buf_clear_namespace(buf, ns_id, 0, -1)
                     on_next_round()
                 end
-            end, 600)
+            end, delay)
         end, { buffer = buf, silent = true, nowait = true })
     end
 end
