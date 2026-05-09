@@ -49,38 +49,44 @@ function M.create_engine(settings)
     end
 
     function engine:generate_choices(answers, correct_answer)
+        -- Start with correct answer
         local choices = { correct_answer }
-        -- Try to fill with unique answers from the pool
-        local attempts = 0
-        while #choices < 4 and attempts < #answers * 2 do
-            local r = math.random(1, #answers)
-            if answers[r] ~= correct_answer then
-                local exists = false
-                for _, v in ipairs(choices) do
-                    if v == answers[r] then
-                        exists = true
+        
+        -- Collect all unique answers different from correct answer
+        local available = {}
+        for _, ans in ipairs(answers) do
+            if ans ~= correct_answer then
+                local already_added = false
+                for _, existing in ipairs(available) do
+                    if existing == ans then
+                        already_added = true
                         break
                     end
                 end
-                if not exists then
-                    table.insert(choices, answers[r])
+                if not already_added then
+                    table.insert(available, ans)
                 end
             end
-            attempts = attempts + 1
         end
-        -- Pad with empty strings if we don't have 4 choices
+        
+        -- Add up to 3 random wrong answers from available pool
+        while #choices < 4 and #available > 0 do
+            local idx = math.random(1, #available)
+            table.insert(choices, available[idx])
+            table.remove(available, idx)
+        end
+        
+        -- Pad with empty strings to always have exactly 4 choices
         while #choices < 4 do
             table.insert(choices, "")
         end
-        -- Ensure we have exactly 4 choices (truncate if somehow we have more)
-        while #choices > 4 do
-            table.remove(choices)
-        end
+        
         -- Shuffle all 4 positions
         for i = 4, 2, -1 do
             local j = math.random(i)
             choices[i], choices[j] = choices[j], choices[i]
         end
+        
         return choices
     end
 
