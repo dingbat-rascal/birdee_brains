@@ -6,10 +6,10 @@ local function parse_csv_line(line)
     local field = ""
     local in_quotes = false
     local i = 1
-    
+
     while i <= #line do
         local char = line:sub(i, i)
-        
+
         if char == '"' then
             if in_quotes and i < #line and line:sub(i + 1, i + 1) == '"' then
                 -- Escaped quote
@@ -26,13 +26,13 @@ local function parse_csv_line(line)
         else
             field = field .. char
         end
-        
+
         i = i + 1
     end
-    
+
     -- Add the last field
     table.insert(fields, field)
-    
+
     return fields
 end
 
@@ -42,24 +42,24 @@ function M.load_csv(filepath)
     if not file then
         error("Could not open CSV file: " .. filepath)
     end
-    
+
     local lines = {}
     for line in file:lines() do
         table.insert(lines, line)
     end
     file:close()
-    
+
     if #lines == 0 then
         error("CSV file is empty: " .. filepath)
     end
-    
+
     -- Parse header
     local headers = parse_csv_line(lines[1])
-    
+
     -- Parse data rows
     local data = {}
     for i = 2, #lines do
-        if lines[i]:match("%S") then  -- Skip empty lines
+        if lines[i]:match("%S") then -- Skip empty lines
             local fields = parse_csv_line(lines[i])
             local row = {}
             for j, header in ipairs(headers) do
@@ -68,7 +68,7 @@ function M.load_csv(filepath)
             table.insert(data, row)
         end
     end
-    
+
     return data, headers
 end
 
