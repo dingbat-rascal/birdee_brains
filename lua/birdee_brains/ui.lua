@@ -117,8 +117,13 @@ function M.build_layout(engine, dict_a, choices, game_mode)
         layout.input_line = #layout.lines - 1
     else
         -- Guard clause: validate choices for multiple choice mode
-        if not choices or type(choices) ~= "table" or #choices == 0 then
-            choices = { "No choices available" }
+        if not choices or type(choices) ~= "table" then
+            choices = {}
+        end
+        
+        -- Ensure we always have exactly 4 choices (pad with empty strings if needed)
+        while #choices < 4 do
+            table.insert(choices, "")
         end
 
         layout.lines = {
@@ -133,9 +138,10 @@ function M.build_layout(engine, dict_a, choices, game_mode)
         }
         layout.choice_start_line = #layout.lines
         local keys = { "j", "k", "l", ";" }
-        for i, choice in ipairs(choices) do
-            local key = keys[i] or tostring(i)
-            local choice_text = choice or "Invalid choice"
+        -- Always display exactly 4 choices with jkl; keys
+        for i = 1, 4 do
+            local key = keys[i]
+            local choice_text = choices[i] or ""
             table.insert(layout.lines, string.format("  [%s] %s", key, choice_text))
         end
         table.insert(layout.lines, "")

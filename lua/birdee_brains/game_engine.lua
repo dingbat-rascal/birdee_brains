@@ -50,7 +50,9 @@ function M.create_engine(settings)
 
     function engine:generate_choices(answers, correct_answer)
         local choices = { correct_answer }
-        while #choices < 4 do
+        -- Try to fill with unique answers from the pool
+        local attempts = 0
+        while #choices < 4 and attempts < #answers * 2 do
             local r = math.random(1, #answers)
             if answers[r] ~= correct_answer then
                 local exists = false
@@ -63,6 +65,11 @@ function M.create_engine(settings)
                     table.insert(choices, answers[r])
                 end
             end
+            attempts = attempts + 1
+        end
+        -- Pad with empty strings if we don't have 4 choices
+        while #choices < 4 do
+            table.insert(choices, "")
         end
         -- Shuffle
         for i = #choices, 2, -1 do
