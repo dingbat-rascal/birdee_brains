@@ -26,7 +26,9 @@ M.DEFAULTS = {
         quit = "q",                -- quit game
         escape = "<esc>",          -- escape to quit
         choice_keys = { "j", "k", "l", ";" },  -- multiple choice selection keys
-    }
+    },
+
+    debug = false,
 }
 
 return M
