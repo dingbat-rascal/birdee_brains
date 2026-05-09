@@ -1,5 +1,24 @@
 local M = {}
 
+-- Module configuration
+local config = {
+    debug = false
+}
+
+-- Setup function to sync configuration
+function M.setup(user_config)
+    if user_config then
+        config = vim.tbl_deep_extend("force", config, user_config)
+    end
+end
+
+-- Debug print function - only prints if debug is enabled
+local function dprint(...)
+    if config.debug then
+        print(...)
+    end
+end
+
 -- Parse a CSV line, handling quoted fields
 local function parse_csv_line(line)
     local fields = {}
@@ -124,9 +143,8 @@ end
 
 -- Scan a directory for CSV files and return a list of filenames
 function M.scan_csv_files(directory)
-    -- Debug: print current working directory
     local cwd = vim.fn.getcwd()
-    print("DEBUG: Current working directory: " .. cwd)
+    dprint("DEBUG: Current working directory: " .. cwd)
 
     -- Build search paths in priority order
     local search_paths = {}
@@ -155,12 +173,12 @@ function M.scan_csv_files(directory)
     end
 
     if not found_dir then
-        print("DEBUG: Searched paths: " .. table.concat(search_paths, ", "))
-        print("DEBUG: No valid data directory found")
+        dprint("DEBUG: Searched paths: " .. table.concat(search_paths, ", "))
+        dprint("DEBUG: No valid data directory found")
         return {}, nil
     end
 
-    print("DEBUG: Final path being used: " .. found_dir)
+    dprint("DEBUG: Final path being used: " .. found_dir)
 
     -- Use Neovim's globpath to find CSV files (cross-platform)
     local csv_pattern = found_dir .. "/*.csv"
@@ -176,9 +194,9 @@ function M.scan_csv_files(directory)
     end
 
     if #files > 0 then
-        print("DEBUG: Found CSV files: " .. table.concat(files, ", "))
+        dprint("DEBUG: Found CSV files: " .. table.concat(files, ", "))
     else
-        print("DEBUG: No CSV files found in " .. found_dir)
+        dprint("DEBUG: No CSV files found in " .. found_dir)
     end
 
     return files, found_dir

@@ -10,9 +10,9 @@ function M.setup(opts)
     vim.keymap.set('n', '<C-g>', M.launch, { silent = true, desc = "Start Game" })
     M.SETTINGS = vim.tbl_deep_extend("force", settings_module.DEFAULTS, opts or {})
     
-    -- Pass config to csv_loader for debug logging
+    -- Setup csv_loader with configuration
     local csv_loader = require("birdee_brains.csv_loader")
-    csv_loader.config = M.SETTINGS
+    csv_loader.setup(M.SETTINGS)
 end
 
 -- Show lesson selection menu
