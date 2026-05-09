@@ -102,7 +102,7 @@ function M.build_layout(engine, dict_a, choices, game_mode)
 
     if game_mode == "speedrun" then
         layout.lines = {
-            " --- TRANSLATION GAME --- ",
+            " --- Speedrun GAME --- ",
             string.format(" Correct:  %d", engine.correct),
             string.format(" Wrong:    %d", engine.wrong),
             string.format(" Accuracy: %.1f%%", accuracy),
@@ -131,7 +131,7 @@ function M.build_layout(engine, dict_a, choices, game_mode)
         }
 
         layout.lines = {
-            "  SELECT THE CORRECT TRANSLATION",
+            "  SELECT CORRECT",
             "  " .. string.rep("━", 22),
             string.format("  Acc: %.1f%% | Streak: %d | Correct: %d | Wrong: %d", 
                 accuracy, engine.streak, engine.correct, engine.wrong),
