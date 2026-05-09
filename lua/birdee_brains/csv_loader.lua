@@ -155,8 +155,8 @@ function M.scan_csv_files(directory)
     print("DEBUG: Found data directory: " .. found_dir)
     print("DEBUG: Current working directory: " .. cwd)
     
-    -- Scan for CSV files (case-insensitive)
-    local handle = io.popen('ls "' .. found_dir .. '" 2>/dev/null | grep -i "\.csv$"')
+    -- Scan for CSV files (case-insensitive) - use simpler ls command
+    local handle = io.popen('ls "' .. found_dir .. '" 2>/dev/null')
     if not handle then
         print("DEBUG: Failed to list files in directory")
         return {}, found_dir
@@ -166,9 +166,12 @@ function M.scan_csv_files(directory)
     handle:close()
     
     local files = {}
-    for filename in result:gmatch("[^\n]+") do
-        if filename:lower():match("%.csv$") then
-            table.insert(files, filename)
+    if result then
+        for filename in result:gmatch("[^\n]+") do
+            -- Case-insensitive check for .csv extension
+            if filename and filename:lower():match("%.csv$") then
+                table.insert(files, filename)
+            end
         end
     end
     
@@ -181,9 +184,9 @@ function M.scan_csv_files(directory)
     return files, found_dir
 end
 
--- Get lesson name from CSV filename (removes .csv extension)
+-- Get lesson name from CSV filename (removes .csv extension, case-insensitive)
 function M.get_lesson_name(filename)
-    return filename:gsub("%.csv$", "")
+    return filename:gsub("%.csv$", ""):gsub("%.CSV$", "")
 end
 
 return M
