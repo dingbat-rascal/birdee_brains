@@ -108,12 +108,6 @@ function M.launch()
 
     local SETTINGS = M.SETTINGS
     
-    -- If CSV file is already declared in settings, start game directly
-    if SETTINGS.csv_file and SETTINGS.csv_file ~= "" then
-        M.start_game(SETTINGS)
-        return
-    end
-    
     -- Scan for available lessons
     local csv_files, found_dir = csv_loader.scan_csv_files(SETTINGS.data_directory)
     
@@ -131,6 +125,29 @@ function M.launch()
     
     -- Use the found directory for loading files
     local data_dir = found_dir or SETTINGS.data_directory
+    
+    -- If CSV file is already declared in settings, resolve and start game directly
+    if SETTINGS.csv_file and SETTINGS.csv_file ~= "" then
+        -- Check if it's already a full path
+        if SETTINGS.csv_file:match("^/") or SETTINGS.csv_file:match("^%a:") then
+            -- Already a full path, use as-is
+            M.start_game(SETTINGS)
+        else
+            -- Relative path or just filename, resolve it
+            local csv_path = SETTINGS.csv_file
+            -- Add .csv extension if missing
+            if not csv_path:match("%.csv$") then
+                csv_path = csv_path .. ".csv"
+            end
+            -- Prepend data directory if not already included
+            if not csv_path:match("^" .. vim.pesc(data_dir)) then
+                csv_path = data_dir .. csv_path
+            end
+            SETTINGS.csv_file = csv_path
+            M.start_game(SETTINGS)
+        end
+        return
+    end
     
     -- If only one lesson, load it directly
     if #csv_files == 1 then
