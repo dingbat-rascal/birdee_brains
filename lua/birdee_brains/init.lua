@@ -214,10 +214,10 @@ function M.start_game(SETTINGS)
     end
     local win = vim.api.nvim_open_win(buf, true, {
         relative = 'editor',
-        width = 45,
-        height = 16,
-        col = (vim.o.columns - 50) / 2,
-        row = (vim.o.lines - 16) / 2,
+        width = 80,
+        height = 24,
+        col = (vim.o.columns - 80) / 2,
+        row = (vim.o.lines - 24) / 2,
         style = 'minimal',
         border = 'rounded'
     })
