@@ -52,6 +52,7 @@ return {
         question_column = nil, -- Default: first column (e.g., "en")
         answer_column = nil,   -- Default: second column (e.g., "fr")
         -- Note: CSV files can have 2+ columns; only question/answer columns are used
+        -- TODO : pick your columns, pick game_mode
         
         -- Game mode: "multiple_choice" or "speedrun"
         game_mode = "multiple_choice",
@@ -66,6 +67,14 @@ return {
         input_keymap = "", -- Keymap for speedrun input (e.g., "kana" for Japanese)
         -- View available keymaps: :echo globpath(&rtp, "keymap/*.vim")
         -- Or create custom ones in ~/.config/nvim/keymap/example.vim
+    },
+
+    keybinds = {
+        submit = "<CR>",           -- speedrun: submit answer
+        refresh = "dd",            -- clear and refresh round
+        quit = "q",                -- quit game
+        escape = "<esc>",          -- escape to quit
+        choice_keys = { "j", "k", "l", ";" },  -- multiple choice selection keys
     },
 }
 ```
