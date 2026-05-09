@@ -34,25 +34,48 @@ Using [lazy.nvim](https://github.com/folke/lazy.nvim):
 return {
     "dingbat-rascal/birdee_brains",
     keys = {
-        { "<C-g>", function () require("birdee_brains").launch( ) end, desc = "Start" },
+        { "<C-g>", function () require("birdee_brains").launch() end, desc = "Start Birdee Brains" },
     },
-  opts = {
-    bird_a = "spanish",
-    bird_b = "english", -- Doesn't need to be languages, can be anything. But
-    -- both directories must have the same number of indexes, and questions
-    -- must correlate to answers question_1 : answer_1.
-    course_number = 1,
-    game_mode = "multiple_choice", -- or "speedrun"
-    reveal_correct = true, -- highlights the correct answer on wrong entry.
-    reinforcement = true, -- a chance to loop answers you got wrong.
-    input_keymap = "kana" -- these are toggled only on input of prompt.
-    -- empty "" for english or view default available with
-    -- :echo globpath(&rtp, "keymap/*.vim")
-    -- or you can use custom ones make dir ./nvim/keymap/example.vim dir
-    -- you dont need full path just "example" this is default vim behavior.
-  },
+    opts = {
+        -- CSV file to load (optional - if not set, you'll get a lesson picker)
+        -- Can be just the filename (e.g., "french_verbs") or full path
+        csv_file = "", -- Leave empty to show lesson selection menu
+        
+        -- Game mode: "multiple_choice" or "speedrun"
+        game_mode = "multiple_choice",
+        
+        -- Multiple choice settings
+        reveal_correct = true, -- Highlight correct answer when you get it wrong
+        
+        -- Reinforcement learning: re-quiz on mistakes
+        reinforce = true, -- 70% chance to show questions you got wrong
+        
+        -- Speedrun mode settings
+        input_keymap = "", -- Keymap for speedrun input (e.g., "kana" for Japanese)
+        -- View available keymaps: :echo globpath(&rtp, "keymap/*.vim")
+        -- Or create custom ones in ~/.config/nvim/keymap/example.vim
+        
+        -- Data directory (auto-detected, usually don't need to change)
+        data_directory = nil, -- Plugin will find lua/birdee_brains/data/
+    },
 }
 ```
+
+### Quick Start
+1. Install the plugin
+2. Press `<C-g>` to launch
+3. Select a lesson from the menu (or configure `csv_file` to skip the menu)
+4. In **multiple choice** mode: Press `jkl;` to select answers
+5. In **speedrun** mode: Type the answer and press Enter
+
+### Creating Custom Lessons
+Create CSV files in `lua/birdee_brains/data/` with this format:
+```csv
+en,fr
+Question text here,answer
+Another question,another answer
+```
+The plugin will automatically detect and list all CSV files in the data directory.
 
 ## History
     Originally conceived as an opensource **Duolingo** alternitive Neovim, birdee_brains
