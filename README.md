@@ -92,7 +92,7 @@ return {
 #### Basic CSV Format
 Create CSV files with at least 2 columns. The first row contains column headers:
 ```csv
-en,fr
+example - en,fr
 Question text here,answer
 Another question,another answer
 ```
@@ -107,9 +107,11 @@ You can add more columns and specify which to use:
 en,fr,notes
 Je ___ un étudiant,suis,verb: être (to be)
 Tu ___ un chat,as,verb: avoir (to have)
+or a third translation
 ```
 
 Then configure which columns to use:
+by default its 1 and 2.
 ```lua
 opts = {
     question_column = "en",  -- Use the "en" column for questions
@@ -155,5 +157,4 @@ The plugin will automatically detect and list all CSV files in the data director
       daily practice. 
     - [ ] **Phonetic Alphabet:** Incorporate a way to display the International
       Phonetic Alphabet.
-    - [ ] **UserDefined Directories:** Allow users to easily set bird directory.
-      Abillity to use an obsidian vault as a path.
+    - [ ] *Obsidian:** Abillity to use an obsidian vault as a path.
