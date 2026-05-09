@@ -37,9 +37,21 @@ return {
         { "<C-g>", function () require("birdee_brains").launch() end, desc = "Start Birdee Brains" },
     },
     opts = {
-        -- CSV file to load (optional - if not set, you'll get a lesson picker)
+        -- CSV file to load (optional - leave empty to show lesson picker on launch)
         -- Can be just the filename (e.g., "french_verbs") or full path
+        -- Set this to skip the lesson menu and load a default lesson automatically
         csv_file = "", -- Leave empty to show lesson selection menu
+        
+        -- Data directory (optional - auto-detected if not set)
+        -- Set this to use a custom directory for your CSV lessons
+        -- Examples: "~/my_lessons/", "/path/to/obsidian/vault/flashcards/"
+        data_directory = nil, -- Default: plugin's lua/birdee_brains/data/
+        
+        -- CSV column configuration (optional - defaults to first two columns)
+        -- Specify which columns contain questions and answers
+        question_column = nil, -- Default: first column (e.g., "en")
+        answer_column = nil,   -- Default: second column (e.g., "fr")
+        -- Note: CSV files can have 2+ columns; only question/answer columns are used
         
         -- Game mode: "multiple_choice" or "speedrun"
         game_mode = "multiple_choice",
@@ -54,9 +66,6 @@ return {
         input_keymap = "", -- Keymap for speedrun input (e.g., "kana" for Japanese)
         -- View available keymaps: :echo globpath(&rtp, "keymap/*.vim")
         -- Or create custom ones in ~/.config/nvim/keymap/example.vim
-        
-        -- Data directory (auto-detected, usually don't need to change)
-        data_directory = nil, -- Plugin will find lua/birdee_brains/data/
     },
 }
 ```
@@ -69,13 +78,57 @@ return {
 5. In **speedrun** mode: Type the answer and press Enter
 
 ### Creating Custom Lessons
-Create CSV files in `lua/birdee_brains/data/` with this format:
+
+#### Basic CSV Format
+Create CSV files with at least 2 columns. The first row contains column headers:
 ```csv
 en,fr
 Question text here,answer
 Another question,another answer
 ```
-The plugin will automatically detect and list all CSV files in the data directory.
+
+By default, the plugin uses:
+- **First column** as questions
+- **Second column** as answers
+
+#### Custom Column Configuration
+You can add more columns and specify which to use:
+```csv
+en,fr,notes
+Je ___ un étudiant,suis,verb: être (to be)
+Tu ___ un chat,as,verb: avoir (to have)
+```
+
+Then configure which columns to use:
+```lua
+opts = {
+    question_column = "en",  -- Use the "en" column for questions
+    answer_column = "fr",    -- Use the "fr" column for answers
+    -- The "notes" column will be ignored
+}
+```
+
+#### Custom Data Directory
+Store your lessons anywhere:
+```lua
+opts = {
+    data_directory = "~/Documents/flashcards/",
+    -- or use an Obsidian vault:
+    -- data_directory = "~/obsidian/my-vault/language-learning/",
+}
+```
+
+#### Skip Lesson Menu
+Set a default lesson to load automatically:
+```lua
+opts = {
+    csv_file = "french_verbs",  -- Just the filename (no .csv needed)
+    -- or use full path:
+    -- csv_file = "~/my_lessons/spanish_vocab.csv",
+}
+```
+
+The plugin will automatically detect and list all CSV files in the data directory when no default is set.
 
 ## History
     Originally conceived as an opensource **Duolingo** alternitive Neovim, birdee_brains
