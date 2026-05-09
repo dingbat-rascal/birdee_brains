@@ -112,11 +112,54 @@ function M.extract_column(data, column_name)
     return result
 end
 
+-- Check if a directory exists
+local function directory_exists(path)
+    local handle = io.popen('test -d "' .. path .. '" && echo "exists"')
+    if not handle then
+        return false
+    end
+    local result = handle:read("*a")
+    handle:close()
+    return result:match("exists") ~= nil
+end
+
 -- Scan a directory for CSV files and return a list of filenames
 function M.scan_csv_files(directory)
-    local handle = io.popen('ls "' .. directory .. '"*.csv 2>/dev/null')
+    -- Try to find the correct directory
+    local search_paths = {
+        directory,
+        "data/",
+        "lua/birdee_brains/data/"
+    }
+    
+    local found_dir = nil
+    for _, path in ipairs(search_paths) do
+        if directory_exists(path) then
+            found_dir = path
+            break
+        end
+    end
+    
+    -- Debug: print current working directory
+    local pwd_handle = io.popen('pwd')
+    local cwd = pwd_handle and pwd_handle:read("*a"):gsub("\n", "") or "unknown"
+    if pwd_handle then pwd_handle:close() end
+    
+    if not found_dir then
+        print("DEBUG: Current working directory: " .. cwd)
+        print("DEBUG: Searched paths: " .. table.concat(search_paths, ", "))
+        print("DEBUG: No valid data directory found")
+        return {}, nil
+    end
+    
+    print("DEBUG: Found data directory: " .. found_dir)
+    print("DEBUG: Current working directory: " .. cwd)
+    
+    -- Scan for CSV files (case-insensitive)
+    local handle = io.popen('ls "' .. found_dir .. '" 2>/dev/null | grep -i "\.csv$"')
     if not handle then
-        return {}
+        print("DEBUG: Failed to list files in directory")
+        return {}, found_dir
     end
     
     local result = handle:read("*a")
@@ -124,14 +167,18 @@ function M.scan_csv_files(directory)
     
     local files = {}
     for filename in result:gmatch("[^\n]+") do
-        -- Extract just the filename without path
-        local basename = filename:match("([^/]+)$")
-        if basename and basename:match("%.csv$") then
-            table.insert(files, basename)
+        if filename:lower():match("%.csv$") then
+            table.insert(files, filename)
         end
     end
     
-    return files
+    if #files > 0 then
+        print("DEBUG: Found CSV files: " .. table.concat(files, ", "))
+    else
+        print("DEBUG: No CSV files found in " .. found_dir)
+    end
+    
+    return files, found_dir
 end
 
 -- Get lesson name from CSV filename (removes .csv extension)

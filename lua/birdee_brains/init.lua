@@ -65,16 +65,25 @@ function M.launch()
     local csv_loader = require("birdee_brains.csv_loader")
     
     -- Scan for available lessons
-    local csv_files = csv_loader.scan_csv_files(SETTINGS.data_directory)
+    local csv_files, found_dir = csv_loader.scan_csv_files(SETTINGS.data_directory)
     
     if #csv_files == 0 then
-        vim.notify("No CSV lesson files found in " .. SETTINGS.data_directory, vim.log.levels.ERROR)
+        local error_msg = "No CSV lesson files found"
+        if found_dir then
+            error_msg = error_msg .. " in " .. found_dir
+        else
+            error_msg = error_msg .. ". Could not locate data directory."
+        end
+        vim.notify(error_msg, vim.log.levels.ERROR)
         return
     end
     
+    -- Use the found directory for loading files
+    local data_dir = found_dir or SETTINGS.data_directory
+    
     -- If only one lesson, load it directly
     if #csv_files == 1 then
-        SETTINGS.csv_file = SETTINGS.data_directory .. csv_files[1]
+        SETTINGS.csv_file = data_dir .. csv_files[1]
         M.start_game(SETTINGS)
         return
     end
@@ -89,7 +98,7 @@ function M.launch()
         -- Find the corresponding CSV file
         for _, filename in ipairs(csv_files) do
             if csv_loader.get_lesson_name(filename) == selected_lesson then
-                SETTINGS.csv_file = SETTINGS.data_directory .. filename
+                SETTINGS.csv_file = data_dir .. filename
                 M.start_game(SETTINGS)
                 return
             end
