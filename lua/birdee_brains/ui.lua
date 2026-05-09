@@ -4,6 +4,31 @@ local M = {}
 -- Helper Functions
 -- ============================================================================
 
+--- Convert \n escape sequences to actual newlines and split into lines
+--- @param text string The text potentially containing \n
+--- @return table lines Array of lines after splitting on \n
+local function process_newlines(text)
+    if not text or type(text) ~= "string" then
+        return { "" }
+    end
+    
+    -- Replace literal \n with actual newlines
+    local processed = text:gsub("\\n", "\n")
+    
+    -- Split on newlines
+    local lines = {}
+    for line in processed:gmatch("[^\n]+") do
+        table.insert(lines, line)
+    end
+    
+    -- Handle empty string case
+    if #lines == 0 then
+        return { "" }
+    end
+    
+    return lines
+end
+
 --- Validate engine data to prevent nil access
 --- @param engine table The game engine
 --- @return boolean valid True if engine has required fields
@@ -91,7 +116,8 @@ function M.build_layout(engine, dict_a, choices, game_mode)
         }
     end
     local accuracy = get_accuracy(engine)
-    local question_text = dict_a[engine.target_idx] or "No question"
+    local question_raw = dict_a[engine.target_idx] or "No question"
+    local question_lines = process_newlines(question_raw)
     local mistake_count = #engine.mistake_bucket
 
     local layout = {
@@ -110,10 +136,17 @@ function M.build_layout(engine, dict_a, choices, game_mode)
             string.format(" Best:     %d", engine.max_streak),
             string.format(" Review: %d", mistake_count),
             "",
-            " TRANSLATE: " .. question_text,
-            "",
-            " > "
+            " TRANSLATE: "
         }
+        
+        -- Add each line of the question
+        for _, line in ipairs(question_lines) do
+            table.insert(layout.lines, " " .. line)
+        end
+        
+        table.insert(layout.lines, "")
+        table.insert(layout.lines, " > ")
+        
         layout.input_line = #layout.lines - 1
     else
         -- Guard clause: validate choices for multiple choice mode
@@ -136,10 +169,16 @@ function M.build_layout(engine, dict_a, choices, game_mode)
             string.format("  Acc: %.1f%% | Streak: %d | Correct: %d | Wrong: %d", 
                 accuracy, engine.streak, engine.correct, engine.wrong),
             "",
-            "  Question: " .. question_text,
-            "",
-            string.format(" Review: %d", mistake_count),
+            "  Question: "
         }
+        
+        -- Add each line of the question with proper indentation
+        for _, line in ipairs(question_lines) do
+            table.insert(layout.lines, "  " .. line)
+        end
+        
+        table.insert(layout.lines, "")
+        table.insert(layout.lines, string.format(" Review: %d", mistake_count))
         layout.choice_start_line = #layout.lines
         local keys = { "j", "k", "l", ";" }
         -- Always display exactly 4 choices with jkl; keys - use explicit indices
