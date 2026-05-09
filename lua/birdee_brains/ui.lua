@@ -139,9 +139,13 @@ function M.build_layout(engine, dict_a, choices, game_mode)
             " TRANSLATE: "
         }
         
-        -- Add each line of the question
-        for _, line in ipairs(question_lines) do
-            table.insert(layout.lines, " " .. line)
+        -- Add each line of the question with dash prefix for code readability
+        for i, line in ipairs(question_lines) do
+            if i == 1 then
+                table.insert(layout.lines, " " .. line)
+            else
+                table.insert(layout.lines, " - " .. line)
+            end
         end
         
         table.insert(layout.lines, "")
@@ -172,9 +176,13 @@ function M.build_layout(engine, dict_a, choices, game_mode)
             "  Question: "
         }
         
-        -- Add each line of the question with proper indentation
-        for _, line in ipairs(question_lines) do
-            table.insert(layout.lines, "  " .. line)
+        -- Add each line of the question with proper indentation and dash prefix
+        for i, line in ipairs(question_lines) do
+            if i == 1 then
+                table.insert(layout.lines, "  " .. line)
+            else
+                table.insert(layout.lines, "  - " .. line)
+            end
         end
         
         table.insert(layout.lines, "")
