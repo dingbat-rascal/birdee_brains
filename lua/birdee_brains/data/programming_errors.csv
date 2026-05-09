@@ -1,0 +1,35 @@
+Broken Code,Error Explanation
+"print(""Hello World)",Missing closing quote - string literal not terminated
+"x = 5
+y = x + z",NameError - variable 'z' is not defined before use
+"def calculate():
+    return x + y
+x = 10",IndentationError - inconsistent indentation mixing spaces and tabs
+"my_list = [1, 2, 3]
+print(my_list[3])",IndexError - list index out of range (valid indices are 0-2)
+"result = 10 / 0",ZeroDivisionError - division by zero is undefined
+"my_dict = {'a': 1}
+print(my_dict['b'])",KeyError - key 'b' does not exist in dictionary
+"def greet(name):
+    print(f'Hello {name}')
+greet()",TypeError - missing required positional argument 'name'
+"x = '5'
+y = x + 3",TypeError - cannot concatenate string and integer without conversion
+"for i in range(5)
+    print(i)",SyntaxError - missing colon after for statement
+"if x = 5:
+    print(x)",SyntaxError - using assignment operator '=' instead of comparison '=='
+"import math
+print(math.squareroot(16))",AttributeError - module 'math' has no attribute 'squareroot' (should be 'sqrt')
+"my_list = [1, 2, 3]
+my_list.append(4, 5)",TypeError - append() takes exactly one argument (2 given)
+"class Dog:
+    def __init__(self, name):
+        self.name = name
+dog = Dog()",TypeError - __init__() missing required argument 'name'
+"x = None
+print(x.upper())",AttributeError - 'NoneType' object has no attribute 'upper'
+"file = open('data.txt')
+content = file.read()
+file.close()
+print(content.split())",FileNotFoundError - file 'data.txt' does not exist in current directory
