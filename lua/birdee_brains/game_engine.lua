@@ -59,6 +59,7 @@ function M.create_engine(settings)
                 for _, v in ipairs(choices) do
                     if v == answers[r] then
                         exists = true
+                        break
                     end
                 end
                 if not exists then
@@ -71,8 +72,12 @@ function M.create_engine(settings)
         while #choices < 4 do
             table.insert(choices, "")
         end
-        -- Shuffle
-        for i = #choices, 2, -1 do
+        -- Ensure we have exactly 4 choices (truncate if somehow we have more)
+        while #choices > 4 do
+            table.remove(choices)
+        end
+        -- Shuffle all 4 positions
+        for i = 4, 2, -1 do
             local j = math.random(i)
             choices[i], choices[j] = choices[j], choices[i]
         end
