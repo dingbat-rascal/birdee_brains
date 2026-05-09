@@ -108,6 +108,12 @@ function M.launch()
 
     local SETTINGS = M.SETTINGS
     
+    -- If CSV file is already declared in settings, start game directly
+    if SETTINGS.csv_file and SETTINGS.csv_file ~= "" then
+        M.start_game(SETTINGS)
+        return
+    end
+    
     -- Scan for available lessons
     local csv_files, found_dir = csv_loader.scan_csv_files(SETTINGS.data_directory)
     
