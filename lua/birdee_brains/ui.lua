@@ -122,10 +122,13 @@ function M.build_layout(engine, dict_a, choices, game_mode)
         end
         
         -- Ensure we always have exactly 4 choices (pad with empty strings if needed)
-        local safe_choices = {}
-        for i = 1, 4 do
-            safe_choices[i] = choices[i] or ""
-        end
+        -- Use explicit array construction to guarantee 4 elements
+        local safe_choices = {
+            choices[1] or "",
+            choices[2] or "",
+            choices[3] or "",
+            choices[4] or ""
+        }
 
         layout.lines = {
             "  SELECT THE CORRECT TRANSLATION",
@@ -139,12 +142,11 @@ function M.build_layout(engine, dict_a, choices, game_mode)
         }
         layout.choice_start_line = #layout.lines
         local keys = { "j", "k", "l", ";" }
-        -- Always display exactly 4 choices with jkl; keys
-        for i = 1, 4 do
-            local key = keys[i]
-            local choice_text = safe_choices[i]
-            table.insert(layout.lines, string.format("  [%s] %s", key, choice_text))
-        end
+        -- Always display exactly 4 choices with jkl; keys - use explicit indices
+        table.insert(layout.lines, string.format("  [%s] %s", keys[1], safe_choices[1]))
+        table.insert(layout.lines, string.format("  [%s] %s", keys[2], safe_choices[2]))
+        table.insert(layout.lines, string.format("  [%s] %s", keys[3], safe_choices[3]))
+        table.insert(layout.lines, string.format("  [%s] %s", keys[4], safe_choices[4]))
         table.insert(layout.lines, "")
         table.insert(layout.lines, "  [jkl;] Select | [Q] Quit")
     end

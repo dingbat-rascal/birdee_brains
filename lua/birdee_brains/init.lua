@@ -273,10 +273,23 @@ function M.start_game(SETTINGS)
                 return
             end
             
+            -- Debug: Check what generate_choices returned
+            if SETTINGS.debug then
+                vim.notify(string.format("generate_choices returned %d choices", #choices), vim.log.levels.INFO)
+            end
+            
             -- Force exactly 4 choices - create new table to avoid reference issues
             local safe_choices = {}
             for i = 1, 4 do
                 safe_choices[i] = choices[i] or ""
+            end
+            
+            -- Debug: Verify safe_choices has 4 elements
+            if SETTINGS.debug then
+                vim.notify(string.format("safe_choices has %d elements", #safe_choices), vim.log.levels.INFO)
+                for i = 1, 4 do
+                    vim.notify(string.format("  [%d] = '%s'", i, safe_choices[i]), vim.log.levels.INFO)
+                end
             end
 
             -- Store choices in engine state for keymap access
