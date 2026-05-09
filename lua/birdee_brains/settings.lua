@@ -28,7 +28,7 @@ M.DEFAULTS = {
         choice_keys = { "j", "k", "l", ";" },  -- multiple choice selection keys
     },
 
-    debug = false,
+    debug = true,
 }
 
 return M
