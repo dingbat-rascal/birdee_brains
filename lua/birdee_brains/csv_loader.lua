@@ -62,8 +62,9 @@ function M.load_csv(filepath)
     end
 
     -- Extract filename without extension for ID generation
-    local filename = filepath:match("([^/]+)%.csv$") or filepath:match("([^/]+)$") or "unknown"
-    filename = filename:gsub("%.csv$", "")
+    -- Handle filenames with multiple dots by taking everything before the first dot
+    local filename = filepath:match("([^/]+)$") or "unknown"
+    filename = filename:match("^([^%.]+)") or filename
 
     -- Parse data rows
     local data = {}
@@ -112,27 +113,39 @@ function M.extract_column(data, column_name)
     return result
 end
 
--- Check if a directory exists
+-- Check if a directory exists using Neovim API
 local function directory_exists(path)
-    local f = io.open(path, "r")
-    if f then
-        f:close()
-        return true
+    if not path or path == "" then
+        return false
     end
-    -- If opening fails, it might still be a directory. 
-    -- Let's try to 'cd' into it.
-    local ok = os.execute('cd "' .. path .. '"')
-    return ok
+    local stat = vim.loop.fs_stat(path)
+    return stat and stat.type == "directory"
 end
 
 -- Scan a directory for CSV files and return a list of filenames
 function M.scan_csv_files(directory)
-    -- Try to find the correct directory
-    local search_paths = {
-        directory,
-        "birdee_brains/lua/birdee_brains/data/"
-    }
+    -- Debug: print current working directory
+    local cwd = vim.fn.getcwd()
+    print("DEBUG: Current working directory: " .. cwd)
 
+    -- Build search paths in priority order
+    local search_paths = {}
+    
+    -- 1. User-provided override directory (highest priority)
+    if directory and directory ~= "" then
+        table.insert(search_paths, directory)
+    end
+    
+    -- 2. Neovim runtime path (plugin's own data folder)
+    local runtime_paths = vim.api.nvim_get_runtime_file("lua/birdee_brains/data/", false)
+    if runtime_paths and #runtime_paths > 0 then
+        table.insert(search_paths, runtime_paths[1])
+    end
+    
+    -- 3. Fallback to local development path
+    table.insert(search_paths, "./data/")
+
+    -- Find the first valid directory
     local found_dir = nil
     for _, path in ipairs(search_paths) do
         if directory_exists(path) then
@@ -141,38 +154,24 @@ function M.scan_csv_files(directory)
         end
     end
 
-    -- Debug: print current working directory
-    local pwd_handle = io.popen('pwd')
-    local cwd = pwd_handle and pwd_handle:read("*a"):gsub("\n", "") or "unknown"
-    if pwd_handle then pwd_handle:close() end
-
     if not found_dir then
-        print("DEBUG: Current working directory: " .. cwd)
         print("DEBUG: Searched paths: " .. table.concat(search_paths, ", "))
         print("DEBUG: No valid data directory found")
         return {}, nil
     end
 
-    print("DEBUG: Found data directory: " .. found_dir)
-    print("DEBUG: Current working directory: " .. cwd)
+    print("DEBUG: Final path being used: " .. found_dir)
 
-    -- Scan for CSV files (case-insensitive) - use simpler ls command
-    local handle = io.popen('ls "' .. found_dir .. '" 2>/dev/null')
-    if not handle then
-        print("DEBUG: Failed to list files in directory")
-        return {}, found_dir
-    end
-
-    local result = handle:read("*a")
-    handle:close()
+    -- Use Neovim's globpath to find CSV files (cross-platform)
+    local csv_pattern = found_dir .. "/*.csv"
+    local file_paths = vim.fn.glob(csv_pattern, false, true)
 
     local files = {}
-    if result then
-        for filename in result:gmatch("[^\n]+") do
-            -- Case-insensitive check for .csv extension
-            if filename and filename:lower():match("%.csv$") then
-                table.insert(files, filename)
-            end
+    for _, filepath in ipairs(file_paths) do
+        -- Extract just the filename from the full path
+        local filename = filepath:match("([^/]+)$")
+        if filename then
+            table.insert(files, filename)
         end
     end
 
