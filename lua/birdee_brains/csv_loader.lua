@@ -234,7 +234,7 @@ function M.get_lesson_name(filename)
     if not filename then
         return ""
     end
-    return filename:gsub("%.csv$", ""):gsub("%.CSV$", "")
+    return (filename:gsub("%.csv$", ""):gsub("%.CSV$", ""))
 end
 
 -- ============================================================================
