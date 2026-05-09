@@ -11,9 +11,93 @@ function M.setup(opts)
     M.SETTINGS = vim.tbl_deep_extend("force", settings_module.DEFAULTS, opts or {})
 end
 
+-- Show lesson selection menu
+local function show_lesson_menu(lessons, callback)
+    local buf = vim.api.nvim_create_buf(false, true)
+    local width = 50
+    local height = math.min(#lessons + 4, 20)
+    local win = vim.api.nvim_open_win(buf, true, {
+        relative = 'editor',
+        width = width,
+        height = height,
+        col = (vim.o.columns - width) / 2,
+        row = (vim.o.lines - height) / 2,
+        style = 'minimal',
+        border = 'rounded',
+        title = ' Choose a Lesson ',
+        title_pos = 'center'
+    })
+    
+    vim.api.nvim_set_option_value('buftype', 'nofile', { buf = buf })
+    vim.api.nvim_set_option_value('modifiable', false, { buf = buf })
+    
+    -- Build menu content
+    local lines = { "", "  Select a lesson:", "" }
+    for i, lesson in ipairs(lessons) do
+        table.insert(lines, string.format("  [%d] %s", i, lesson))
+    end
+    table.insert(lines, "")
+    table.insert(lines, "  Press number to select, 'q' to quit")
+    
+    vim.api.nvim_set_option_value('modifiable', true, { buf = buf })
+    vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
+    vim.api.nvim_set_option_value('modifiable', false, { buf = buf })
+    
+    -- Setup keymaps for selection
+    for i, lesson in ipairs(lessons) do
+        vim.keymap.set('n', tostring(i), function()
+            vim.api.nvim_win_close(win, true)
+            callback(lesson)
+        end, { buffer = buf, silent = true })
+    end
+    
+    vim.keymap.set('n', 'q', function()
+        vim.api.nvim_win_close(win, true)
+    end, { buffer = buf, silent = true })
+    
+    vim.keymap.set('n', '<Esc>', function()
+        vim.api.nvim_win_close(win, true)
+    end, { buffer = buf, silent = true })
+end
+
 function M.launch()
     local SETTINGS = M.SETTINGS
+    local csv_loader = require("birdee_brains.csv_loader")
+    
+    -- Scan for available lessons
+    local csv_files = csv_loader.scan_csv_files(SETTINGS.data_directory)
+    
+    if #csv_files == 0 then
+        vim.notify("No CSV lesson files found in " .. SETTINGS.data_directory, vim.log.levels.ERROR)
+        return
+    end
+    
+    -- If only one lesson, load it directly
+    if #csv_files == 1 then
+        SETTINGS.csv_file = SETTINGS.data_directory .. csv_files[1]
+        M.start_game(SETTINGS)
+        return
+    end
+    
+    -- Show lesson selection menu
+    local lesson_names = {}
+    for _, filename in ipairs(csv_files) do
+        table.insert(lesson_names, csv_loader.get_lesson_name(filename))
+    end
+    
+    show_lesson_menu(lesson_names, function(selected_lesson)
+        -- Find the corresponding CSV file
+        for _, filename in ipairs(csv_files) do
+            if csv_loader.get_lesson_name(filename) == selected_lesson then
+                SETTINGS.csv_file = SETTINGS.data_directory .. filename
+                M.start_game(SETTINGS)
+                return
+            end
+        end
+    end)
+end
 
+function M.start_game(SETTINGS)
     -- Load dictionaries from CSV
     local questions, answers, csv_metadata = dictionary_module.load_dictionary(SETTINGS)
 

@@ -3,7 +3,16 @@ local csv_loader = require("birdee_brains.csv_loader")
 
 -- Load CSV-based dictionary and extract question/answer columns
 function M.load_dictionary(settings)
-    local data, headers = csv_loader.load_csv(settings.csv_file)
+    local data, headers, err = csv_loader.load_csv(settings.csv_file)
+    
+    -- Handle loading errors
+    if err then
+        error(err)
+    end
+    
+    if #data == 0 then
+        error("No data rows found in CSV file: " .. settings.csv_file)
+    end
 
     -- Validate columns exist
     local has_question = false
