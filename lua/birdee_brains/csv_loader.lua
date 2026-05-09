@@ -56,7 +56,7 @@ function M.load_csv(filepath)
 
     -- Parse header (first line)
     local headers = parse_csv_line(lines[1])
-    
+
     if #headers == 0 then
         return {}, {}, "CSV file has no headers: " .. filepath
     end
@@ -73,7 +73,7 @@ function M.load_csv(filepath)
         -- Skip empty lines (lines with only whitespace or no content)
         if line and line:match("%S") then
             local fields = parse_csv_line(line)
-            
+
             -- Only process rows that have at least one non-empty field
             local has_content = false
             for _, field in ipairs(fields) do
@@ -82,19 +82,19 @@ function M.load_csv(filepath)
                     break
                 end
             end
-            
+
             if has_content then
                 row_number = row_number + 1
                 local row = {}
-                
+
                 -- Generate automatic ID
                 row.id = filename .. "_" .. row_number
-                
+
                 -- Populate row with CSV data
                 for j, header in ipairs(headers) do
                     row[header] = fields[j] or ""
                 end
-                
+
                 table.insert(data, row)
             end
         end
@@ -114,13 +114,15 @@ end
 
 -- Check if a directory exists
 local function directory_exists(path)
-    local handle = io.popen('test -d "' .. path .. '" && echo "exists"')
-    if not handle then
-        return false
+    local f = io.open(path, "r")
+    if f then
+        f:close()
+        return true
     end
-    local result = handle:read("*a")
-    handle:close()
-    return result:match("exists") ~= nil
+    -- If opening fails, it might still be a directory. 
+    -- Let's try to 'cd' into it.
+    local ok = os.execute('cd "' .. path .. '"')
+    return ok
 end
 
 -- Scan a directory for CSV files and return a list of filenames
@@ -128,10 +130,9 @@ function M.scan_csv_files(directory)
     -- Try to find the correct directory
     local search_paths = {
         directory,
-        "data/",
-        "lua/birdee_brains/data/"
+        "birdee_brains/lua/birdee_brains/data/"
     }
-    
+
     local found_dir = nil
     for _, path in ipairs(search_paths) do
         if directory_exists(path) then
@@ -139,32 +140,32 @@ function M.scan_csv_files(directory)
             break
         end
     end
-    
+
     -- Debug: print current working directory
     local pwd_handle = io.popen('pwd')
     local cwd = pwd_handle and pwd_handle:read("*a"):gsub("\n", "") or "unknown"
     if pwd_handle then pwd_handle:close() end
-    
+
     if not found_dir then
         print("DEBUG: Current working directory: " .. cwd)
         print("DEBUG: Searched paths: " .. table.concat(search_paths, ", "))
         print("DEBUG: No valid data directory found")
         return {}, nil
     end
-    
+
     print("DEBUG: Found data directory: " .. found_dir)
     print("DEBUG: Current working directory: " .. cwd)
-    
+
     -- Scan for CSV files (case-insensitive) - use simpler ls command
     local handle = io.popen('ls "' .. found_dir .. '" 2>/dev/null')
     if not handle then
         print("DEBUG: Failed to list files in directory")
         return {}, found_dir
     end
-    
+
     local result = handle:read("*a")
     handle:close()
-    
+
     local files = {}
     if result then
         for filename in result:gmatch("[^\n]+") do
@@ -174,13 +175,13 @@ function M.scan_csv_files(directory)
             end
         end
     end
-    
+
     if #files > 0 then
         print("DEBUG: Found CSV files: " .. table.concat(files, ", "))
     else
         print("DEBUG: No CSV files found in " .. found_dir)
     end
-    
+
     return files, found_dir
 end
 
