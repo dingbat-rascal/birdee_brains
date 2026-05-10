@@ -23,8 +23,9 @@ be fully customizable for any subject or topic that you need to reinforce.
 Sweet tasty delicious strength training for your brain mhmm goooood delicious.
 Oh the burn do you feel it, get those neurons fired up and smoking.
 
-Two directories bird_a and bird_b (interchangable answer and key). Simply set both to the same
-bird and course/brain If you want to practice your
+Using .csv file (spreadsheet) Enter a question in a column and answer in the next. In multiple-choice mode the choices are picked randomly along side the correct. If for some reason you need to know the program uses the $filename<#> for the key.
+
+Keymaps on input buffer if you want to practice your
 typing, keybinds (Portuguese dvorak, Swedish colmac/w accents).
 
 ## Recommended
@@ -159,6 +160,7 @@ The plugin will automatically detect and list all CSV files in the data director
       record allowing you to easily identify your strengths, and weak points.
     - [ ] **Streak System:** Reminder to check in. Display steak to insitivise
       daily practice. 
-    - [ ] **Phonetic Alphabet:** Incorporate a way to display the International
+    - [ ] **Universal Phonetic Alphabet:** Incorporate a way to display the International
       Phonetic Alphabet.
     - [ ] *Obsidian:** Abillity to use an obsidian vault as a path.
+    - [ ] *Matching Mode:** Match asdf to jkl; with a timer.
