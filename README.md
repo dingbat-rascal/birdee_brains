@@ -27,6 +27,10 @@ Two directories bird_a and bird_b (interchangable answer and key). Simply set bo
 bird and course/brain If you want to practice your
 typing, keybinds (Portuguese dvorak, Swedish colmac/w accents).
 
+## Recommended
+I highly recommend using (https://github.com/hat0uma/csvview.nvim) for editing
+.csv files. Great plugin hats off to hat0uma.
+
 ## 📦 Installation
 
 Using [lazy.nvim](https://github.com/folke/lazy.nvim):
