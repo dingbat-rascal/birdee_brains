@@ -31,6 +31,10 @@ typing, keybinds (Portuguese dvorak, Swedish colmac/w accents).
 ## Recommended
 I highly recommend using (https://github.com/hat0uma/csvview.nvim) for editing
 .csv files. Great plugin hats off to hat0uma.
+<img width="820" height="612" alt="bb_menu" src="https://github.com/user-attachments/assets/6d978b4d-71d2-4284-9afc-765e382d3888" />
+<img width="820" height="612" alt="bb_mc_right" src="https://github.com/user-attachments/assets/e9ebff9b-38f9-484e-9480-4eab9d52a883" />
+<img width="820" height="612" alt="bb_mc_wrong" src="https://github.com/user-attachments/assets/fe09c50b-1d53-4c7b-9ef2-f86c0f74a526" />
+<img width="820" height="612" alt="bb_sr_right" src="https://github.com/user-attachments/assets/17b1d328-0060-47b9-b2d7-86ac5ec34049" />
 
 ## 📦 Installation
 
