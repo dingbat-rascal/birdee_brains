@@ -9,6 +9,7 @@ function M.create_engine(settings)
         target_idx = 1,
         mistake_bucket = {},
         settings = settings,
+        metadata = nil,  -- Will store CSV metadata including full row data
     }
 
     function engine:bucketcheck(status, idx)

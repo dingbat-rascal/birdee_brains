@@ -63,13 +63,22 @@ function M.load_dictionary(settings)
             table.insert(answers, correct_answer)
         end
         
+        -- Detect optional columns that might be useful later
+        local optional_columns = {}
+        for _, header in ipairs(headers) do
+            if header == "Explanation" or header == "Phonetic" or header == "Pronunciation" then
+                optional_columns[header] = true
+            end
+        end
+        
         return questions, answers, {
-            data = data,
+            data = data,  -- Full row data for accessing any column
             headers = headers,
             question_column = "Question",
             answer_column = "Correct",
             is_multiple_choice = true,
-            answer_letters = answer_letters,  -- Store available answer letters
+            answer_letters = answer_letters,
+            optional_columns = optional_columns,  -- Track which optional columns exist
         }
     end
 
@@ -114,11 +123,20 @@ function M.load_dictionary(settings)
     local questions = csv_loader.extract_column(data, question_column)
     local answers = csv_loader.extract_column(data, answer_column)
 
+    -- Detect optional columns for 2-column format too
+    local optional_columns = {}
+    for _, header in ipairs(headers) do
+        if header == "Explanation" or header == "Phonetic" or header == "Pronunciation" then
+            optional_columns[header] = true
+        end
+    end
+
     return questions, answers, {
-        data = data,
+        data = data,  -- Full row data for accessing any column
         headers = headers,
         question_column = question_column,
         answer_column = answer_column,
+        optional_columns = optional_columns,  -- Track which optional columns exist
     }
 end
 
