@@ -1,19 +1,28 @@
 local M = {}
 local csv_loader = require("birdee_brains.csv_loader")
 
--- Detect if CSV is in multiple-choice format
-local function is_multiple_choice_format(headers)
-    local has_answer_a = false
-    local has_answer_b = false
+-- Detect if CSV is in multiple-choice format and count answer columns
+local function detect_multiple_choice_format(headers)
     local has_correct = false
+    local answer_columns = {}
     
     for _, header in ipairs(headers) do
-        if header == "Answer A" then has_answer_a = true end
-        if header == "Answer B" then has_answer_b = true end
-        if header == "Correct" then has_correct = true end
+        if header == "Correct" then 
+            has_correct = true 
+        end
+        -- Match "Answer A", "Answer B", etc.
+        local letter = header:match("^Answer ([A-Z])$")
+        if letter then
+            table.insert(answer_columns, letter)
+        end
     end
     
-    return has_answer_a and has_answer_b and has_correct
+    -- Need at least 2 answer columns and a Correct column
+    if has_correct and #answer_columns >= 2 then
+        return true, answer_columns
+    end
+    
+    return false, {}
 end
 
 -- Load CSV-based dictionary and extract question/answer columns
@@ -32,7 +41,8 @@ function M.load_dictionary(settings)
     end
 
     -- Check if this is a multiple-choice format CSV
-    if is_multiple_choice_format(headers) then
+    local is_mc, answer_letters = detect_multiple_choice_format(headers)
+    if is_mc then
         -- Extract questions
         local questions = csv_loader.extract_column(data, "Question")
         
@@ -59,6 +69,7 @@ function M.load_dictionary(settings)
             question_column = "Question",
             answer_column = "Correct",
             is_multiple_choice = true,
+            answer_letters = answer_letters,  -- Store available answer letters
         }
     end
 
