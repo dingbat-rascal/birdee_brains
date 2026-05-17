@@ -9,7 +9,7 @@ Question,Answer A,Answer B,Answer C,Answer D,Correct,Explanation
 "What is the output?\nx = 10\nif x == 10:\n  print(""Equal"")\nif x = 10:\n  print(""Assigned"")",Equal,Assigned,Both print,Syntax error,D,"The second if statement uses = (assignment) instead of == (comparison) which is a syntax error."
 "What does this print?\ntemp = 75\nif temp > 80:\n  print(""Hot"")\nelif temp > 60:\n  print(""Warm"")\nelse:\n  print(""Cold"")",Hot,Warm,Cold,Nothing,B,"75 is not > 80 but is > 60 so the elif-block executes printing Warm."
 "What will output?\nx = 0\nif x:\n  print(""True"")\nelse:\n  print(""False"")",True,False,0,Error,B,"0 is falsy in most languages so the else-block runs printing False."
-"How many times does this loop run?\nfor i in range(3):\n  print(i)",2,3,4,Infinite,B,"range(3) generates 0 1 2 which is 3 numbers so the loop runs 3 times."
+"How many times does this loop run?\nfor i in range(3):\n  print(i)",0,1,3,Infinite,C,"range(3) generates 0 1 2 which is 3 numbers so the loop runs 3 times."
 "What is the last value printed?\nfor i in range(1, 5):\n  print(i)",1,3,4,5,C,"range(1, 5) generates 1 2 3 4 so the last printed value is 4."
 "What does this print?\ncount = 0\nfor i in range(5):\n  count = count + 1\nprint(count)",0,4,5,6,C,"The loop runs 5 times (0 through 4) adding 1 each time so count becomes 5."
 "How many times does ""Hello"" print?\nfor i in range(2):\n  for j in range(3):\n    print(""Hello"")",2,3,5,6,D,"Outer loop runs 2 times inner loop runs 3 times: 2*3=6 total prints."
