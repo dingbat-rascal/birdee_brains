@@ -1,4 +1,3 @@
-<img width="820" height="612" alt="Fixed_question" src="https://github.com/user-attachments/assets/7bdc2f7e-bb23-4777-b4bb-ed9dafba4210" />
 <p align="center">
   <pre>
   _______
