@@ -32,9 +32,12 @@ communicate. Made to be fully customizable for any subject in true vim spirit.
 
 ## Recommended
 
-I highly recommend using (https://github.com/hat0uma/csvview.nvim) for editing
+- I highly recommend using [csvview.nvim](https://github.com/hat0uma/csvview.nvim) for editing
 .csv files. Great plugin hats off to hat0uma. You may need to configure toggle
 to a keybind. I noticed toggle off and on re-organizes the table better.
+
+- If you have no interest in making your own lessons and would rather have somthing primarliy focused on language learning
+then you should look at [trang_bird](https://github.com/dingbat-rascal/trang_bird) a Tatoeba fork.
 
 ### Preview
 
